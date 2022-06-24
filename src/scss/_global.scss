@@ -61,10 +61,13 @@ body {
   position: relative;
 }
 .character {
+  image-rendering: pixelated;
   width: calc(var(--grid-cell) * 2);
   height: calc(var(--grid-cell) * 2);
   position: absolute;
   overflow: hidden;
+  top: calc(50% - var(--grid-cell) * 2);
+  left: calc(50% - var(--grid-cell) * 2);
 }
 
 .shadow {

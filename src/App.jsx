@@ -1,12 +1,9 @@
-import { useState, useRef, useEffect } from "react";
-import useEventListener from "@use-it/event-listener";
+import { useState, useRef } from "react";
 import Player from "./components/Player";
 import useKeyListener from "./hooks/useKeyListener";
-import useAnimationFrame from "./hooks/useAnimationFrame";
-import logo from "./logo.svg";
-import "./scss/index.scss";
 
 function App() {
+  // CONSTANTS
   const heldDirections = useKeyListener();
   const pixelSize = parseInt(
     getComputedStyle(document.documentElement).getPropertyValue("--pixel-size")
@@ -24,6 +21,10 @@ function App() {
       )
     ) * pixelSize;
   const gridCellSize = pixelSize * 16;
+  const cameraLeft = viewWidth / 2 - gridCellSize;
+  const cameraTop = viewHeight / 2 - gridCellSize * 2;
+
+  // COMPONENT STATE
   const [playerXPos, setPlayerXPos] = useState(
     viewWidth / 2 - gridCellSize * 2
   );
@@ -51,6 +52,7 @@ function App() {
       setLastDirection(heldDirection);
     }
   };
+
   // GAME LOOP
   const requestRef = useRef();
   const previousTimeRef = useRef();
@@ -64,11 +66,7 @@ function App() {
     previousTimeRef.current = time;
     requestRef.current = requestAnimationFrame(animate);
   };
-
   requestRef.current = requestAnimationFrame(animate);
-
-  const cameraLeft = viewWidth / 2 - gridCellSize;
-  const cameraTop = viewHeight / 2 - gridCellSize * 2;
 
   return (
     <>
@@ -84,14 +82,8 @@ function App() {
                 -playerYPos + cameraTop
               }px, 0)`,
             }}
-          >
-            <Player
-              x={playerXPos}
-              y={playerYPos}
-              heldDirections={heldDirections}
-              facing={lastDirection}
-            />
-          </div>
+          ></div>
+          <Player heldDirections={heldDirections} facing={lastDirection} />
         </div>
       </section>
     </>
