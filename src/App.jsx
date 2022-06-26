@@ -37,17 +37,43 @@ function App() {
   const updatePlayerPos = () => {
     const heldDirection = heldDirections[0];
     if (heldDirection) {
-      if (heldDirection === "right") {
-        setPlayerXPos(playerXPos + playerSpeed * pixelSize);
-      }
-      if (heldDirection === "left") {
-        setPlayerXPos(playerXPos - playerSpeed * pixelSize);
-      }
-      if (heldDirection === "down") {
-        setPlayerYPos(playerYPos + playerSpeed * pixelSize);
-      }
-      if (heldDirection === "up") {
-        setPlayerYPos(playerYPos - playerSpeed * pixelSize);
+      if (heldDirections.length === 2) {
+        const diagonalSpeed = playerSpeed * 0.75;
+        if (heldDirections.includes("right") && heldDirections.includes("up")) {
+          setPlayerXPos(Math.round(playerXPos + diagonalSpeed * pixelSize));
+          setPlayerYPos(Math.round(playerYPos - diagonalSpeed * pixelSize));
+        }
+        if (
+          heldDirections.includes("right") &&
+          heldDirections.includes("down")
+        ) {
+          setPlayerXPos(Math.round(playerXPos + diagonalSpeed * pixelSize));
+          setPlayerYPos(Math.round(playerYPos + diagonalSpeed * pixelSize));
+        }
+        if (
+          heldDirections.includes("left") &&
+          heldDirections.includes("down")
+        ) {
+          setPlayerXPos(Math.round(playerXPos - diagonalSpeed * pixelSize));
+          setPlayerYPos(Math.round(playerYPos + diagonalSpeed * pixelSize));
+        }
+        if (heldDirections.includes("left") && heldDirections.includes("up")) {
+          setPlayerXPos(Math.round(playerXPos - diagonalSpeed * pixelSize));
+          setPlayerYPos(Math.round(playerYPos - diagonalSpeed * pixelSize));
+        }
+      } else {
+        if (heldDirection === "right") {
+          setPlayerXPos(playerXPos + playerSpeed * pixelSize);
+        }
+        if (heldDirection === "left") {
+          setPlayerXPos(playerXPos - playerSpeed * pixelSize);
+        }
+        if (heldDirection === "down") {
+          setPlayerYPos(playerYPos + playerSpeed * pixelSize);
+        }
+        if (heldDirection === "up") {
+          setPlayerYPos(playerYPos - playerSpeed * pixelSize);
+        }
       }
       setLastDirection(heldDirection);
     }
@@ -60,7 +86,6 @@ function App() {
   const animate = (time) => {
     if (previousTimeRef.current != undefined) {
       const deltaTime = time - previousTimeRef.current;
-      // callback(deltaTime);
       updatePlayerPos();
     }
     previousTimeRef.current = time;
