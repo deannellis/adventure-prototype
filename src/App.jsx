@@ -1,6 +1,9 @@
 import { useState, useRef } from "react";
+
 import Player from "./components/Player";
+import Map from "./components/Map";
 import useKeyListener from "./hooks/useKeyListener";
+import { collisions } from "./assets/mapData/dungeonTest01";
 
 function App() {
   // CONSTANTS
@@ -23,6 +26,15 @@ function App() {
   const gridCellSize = pixelSize * 16;
   const cameraLeft = viewWidth / 2 - gridCellSize;
   const cameraTop = viewHeight / 2 - gridCellSize * 2;
+
+  // MAP
+  const mapWidth = 32;
+  const mapHeight = 32;
+  const collisionsMap = [];
+  for (let i = 0; i < collisions.length; i += mapWidth) {
+    collisionsMap.push(collisions.slice(i, mapWidth + i));
+  }
+  console.log(collisionsMap);
 
   // COMPONENT STATE
   const [playerXPos, setPlayerXPos] = useState(
@@ -100,14 +112,16 @@ function App() {
       </p>
       <section className="frame">
         <div className="camera">
-          <div
-            className="map"
-            style={{
-              transform: `translate3d(${-playerXPos + cameraLeft}px, ${
-                -playerYPos + cameraTop
-              }px, 0)`,
-            }}
-          ></div>
+          <Map
+            playerXPos={playerXPos}
+            playerYPos={playerYPos}
+            cameraLeft={cameraLeft}
+            cameraTop={cameraTop}
+            bgImageName="Dungeon_test01.png"
+            width={mapWidth}
+            height={mapHeight}
+            gridCellSize={gridCellSize}
+          />
           <Player heldDirections={heldDirections} facing={lastDirection} />
         </div>
       </section>

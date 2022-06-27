@@ -1,7 +1,7 @@
 const Player = ({ heldDirections, facing }) => {
   return (
     <div
-      className="character test"
+      className="character "
       facing={`${facing}`}
       walking={`${!heldDirections.length == 0}`}
     >
