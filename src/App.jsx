@@ -4,6 +4,8 @@ import Player from "./components/Player";
 import Map from "./components/Map";
 import useKeyListener from "./hooks/useKeyListener";
 import { collisions } from "./assets/mapData/dungeonTest01";
+import TestBox from "./utils/TestBox";
+import checkCollisions from "./utils/checkCollisions";
 
 function App() {
   // CONSTANTS
@@ -24,8 +26,10 @@ function App() {
       )
     ) * pixelSize;
   const gridCellSize = pixelSize * 16;
-  const cameraLeft = viewWidth / 2 - gridCellSize;
+  const cameraLeft = viewWidth / 2 - gridCellSize * 2;
   const cameraTop = viewHeight / 2 - gridCellSize * 2;
+  const playerXStart = viewWidth / 2 - gridCellSize * 2;
+  const playerYStart = viewHeight / 2 - gridCellSize * 2;
 
   // MAP
   const mapWidth = 32;
@@ -34,15 +38,38 @@ function App() {
   for (let i = 0; i < collisions.length; i += mapWidth) {
     collisionsMap.push(collisions.slice(i, mapWidth + i));
   }
-  console.log(collisionsMap);
+  let cols = [];
+  collisionsMap.forEach((row, i) => {
+    row.forEach((cell, j) => {
+      if (cell === 1) {
+        cols.push({
+          x: i * gridCellSize,
+          y: j * gridCellSize,
+        });
+      }
+    });
+  });
+  let testBlocks = [];
+  const getColTests = () => {
+    collisionsMap.forEach((row, i) => {
+      row.forEach((cell, j) => {
+        if (cell === 1) {
+          testBlocks.push(
+            <TestBox
+              x={j * gridCellSize - (playerXPos - playerXStart)}
+              y={i * gridCellSize - (playerYPos - playerYStart)}
+              dim={gridCellSize}
+            />
+          );
+        }
+      });
+    });
+    return testBlocks;
+  };
 
   // COMPONENT STATE
-  const [playerXPos, setPlayerXPos] = useState(
-    viewWidth / 2 - gridCellSize * 2
-  );
-  const [playerYPos, setPlayerYPos] = useState(
-    viewHeight / 2 - gridCellSize * 2
-  );
+  const [playerXPos, setPlayerXPos] = useState(playerXStart);
+  const [playerYPos, setPlayerYPos] = useState(playerYStart);
   const [lastDirection, setLastDirection] = useState("down");
   const playerSpeed = 1;
 
@@ -84,7 +111,18 @@ function App() {
           setPlayerYPos(playerYPos + playerSpeed * pixelSize);
         }
         if (heldDirection === "up") {
-          setPlayerYPos(playerYPos - playerSpeed * pixelSize);
+          const updateY = playerYPos - playerSpeed * pixelSize;
+          setPlayerYPos(updateY);
+          // checkCollisions(
+          //   playerXPos,
+          //   updateY,
+          //   gridCellSize * 2,
+          //   cols,
+          //   gridCellSize,
+          //   () => {
+          //     setPlayerYPos(updateY);
+          //   }
+          // );
         }
       }
       setLastDirection(heldDirection);
@@ -101,7 +139,9 @@ function App() {
       updatePlayerPos();
     }
     previousTimeRef.current = time;
-    requestRef.current = requestAnimationFrame(animate);
+    if (heldDirections.length > 0) {
+      requestRef.current = requestAnimationFrame(animate);
+    }
   };
   requestRef.current = requestAnimationFrame(animate);
 
@@ -123,6 +163,8 @@ function App() {
             gridCellSize={gridCellSize}
           />
           <Player heldDirections={heldDirections} facing={lastDirection} />
+          <TestBox x={playerXStart} y={playerYStart} dim={gridCellSize * 2} />
+          {getColTests()}
         </div>
       </section>
     </>
