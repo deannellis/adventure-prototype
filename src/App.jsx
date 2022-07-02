@@ -1,11 +1,12 @@
-import { useState, useRef } from "react";
+import { useSelector } from "react-redux";
 
 import Player from "./components/Player";
+import GameLoop from "./components/GameLoop";
 import Map from "./components/Map";
 import useKeyListener from "./hooks/useKeyListener";
 import { collisions } from "./assets/mapData/dungeonTest01";
 import TestBox from "./utils/TestBox";
-import checkCollisions from "./utils/checkCollisions";
+import { checkCollisions2 } from "./utils/checkCollisions";
 
 function App() {
   // CONSTANTS
@@ -67,86 +68,89 @@ function App() {
     return testBlocks;
   };
 
-  // COMPONENT STATE
-  const [playerXPos, setPlayerXPos] = useState(playerXStart);
-  const [playerYPos, setPlayerYPos] = useState(playerYStart);
-  const [lastDirection, setLastDirection] = useState("down");
-  const playerSpeed = 1;
+  // STATE
+  const { lastDirection } = useSelector((state) => state.playerPosition);
+  const playerXPos = useSelector((state) => state.playerPosition.x);
+  const playerYPos = useSelector((state) => state.playerPosition.y);
 
-  const updatePlayerPos = () => {
-    const heldDirection = heldDirections[0];
-    if (heldDirection) {
-      if (heldDirections.length === 2) {
-        const diagonalSpeed = playerSpeed * 0.75;
-        if (heldDirections.includes("right") && heldDirections.includes("up")) {
-          setPlayerXPos(Math.round(playerXPos + diagonalSpeed * pixelSize));
-          setPlayerYPos(Math.round(playerYPos - diagonalSpeed * pixelSize));
-        }
-        if (
-          heldDirections.includes("right") &&
-          heldDirections.includes("down")
-        ) {
-          setPlayerXPos(Math.round(playerXPos + diagonalSpeed * pixelSize));
-          setPlayerYPos(Math.round(playerYPos + diagonalSpeed * pixelSize));
-        }
-        if (
-          heldDirections.includes("left") &&
-          heldDirections.includes("down")
-        ) {
-          setPlayerXPos(Math.round(playerXPos - diagonalSpeed * pixelSize));
-          setPlayerYPos(Math.round(playerYPos + diagonalSpeed * pixelSize));
-        }
-        if (heldDirections.includes("left") && heldDirections.includes("up")) {
-          setPlayerXPos(Math.round(playerXPos - diagonalSpeed * pixelSize));
-          setPlayerYPos(Math.round(playerYPos - diagonalSpeed * pixelSize));
-        }
-      } else {
-        if (heldDirection === "right") {
-          setPlayerXPos(playerXPos + playerSpeed * pixelSize);
-        }
-        if (heldDirection === "left") {
-          setPlayerXPos(playerXPos - playerSpeed * pixelSize);
-        }
-        if (heldDirection === "down") {
-          setPlayerYPos(playerYPos + playerSpeed * pixelSize);
-        }
-        if (heldDirection === "up") {
-          const updateY = playerYPos - playerSpeed * pixelSize;
-          setPlayerYPos(updateY);
-          // checkCollisions(
-          //   playerXPos,
-          //   updateY,
-          //   gridCellSize * 2,
-          //   cols,
-          //   gridCellSize,
-          //   () => {
-          //     setPlayerYPos(updateY);
-          //   }
-          // );
-        }
-      }
-      setLastDirection(heldDirection);
-    }
-  };
-
-  // GAME LOOP
-  const requestRef = useRef();
-  const previousTimeRef = useRef();
-
-  const animate = (time) => {
-    if (previousTimeRef.current != undefined) {
-      const deltaTime = time - previousTimeRef.current;
-      updatePlayerPos();
-    }
-    previousTimeRef.current = time;
-    if (heldDirections.length > 0) {
-      requestRef.current = requestAnimationFrame(animate);
-    }
-  };
-  requestRef.current = requestAnimationFrame(animate);
+  // const updatePlayerPos = () => {
+  //   const heldDirection = heldDirections[0];
+  //   if (heldDirection) {
+  //     if (heldDirections.length === 2) {
+  //       const diagonalSpeed = playerSpeed * 0.75;
+  //       if (heldDirections.includes("right") && heldDirections.includes("up")) {
+  //         setPlayerXPos(Math.round(playerXPos + diagonalSpeed * pixelSize));
+  //         setPlayerYPos(Math.round(playerYPos - diagonalSpeed * pixelSize));
+  //       }
+  //       if (
+  //         heldDirections.includes("right") &&
+  //         heldDirections.includes("down")
+  //       ) {
+  //         setPlayerXPos(Math.round(playerXPos + diagonalSpeed * pixelSize));
+  //         setPlayerYPos(Math.round(playerYPos + diagonalSpeed * pixelSize));
+  //       }
+  //       if (
+  //         heldDirections.includes("left") &&
+  //         heldDirections.includes("down")
+  //       ) {
+  //         setPlayerXPos(Math.round(playerXPos - diagonalSpeed * pixelSize));
+  //         setPlayerYPos(Math.round(playerYPos + diagonalSpeed * pixelSize));
+  //       }
+  //       if (heldDirections.includes("left") && heldDirections.includes("up")) {
+  //         setPlayerXPos(Math.round(playerXPos - diagonalSpeed * pixelSize));
+  //         setPlayerYPos(Math.round(playerYPos - diagonalSpeed * pixelSize));
+  //       }
+  //     } else {
+  //       if (heldDirection === "right") {
+  //         setPlayerXPos(playerXPos + playerSpeed * pixelSize);
+  //       }
+  //       if (heldDirection === "left") {
+  //         setPlayerXPos(playerXPos - playerSpeed * pixelSize);
+  //       }
+  //       if (heldDirection === "down") {
+  //         setPlayerYPos(playerYPos + playerSpeed * pixelSize);
+  //       }
+  //       if (heldDirection === "up") {
+  //         const updateY = playerYPos - playerSpeed * pixelSize;
+  //         setPlayerYPos(updateY);
+  //         cols.forEach((cell) => {
+  //           if (
+  //             !checkCollisions2(
+  //               {
+  //                 x: playerXPos,
+  //                 y: updateY,
+  //                 width: gridCellSize * 2,
+  //                 height: gridCellSize * 2,
+  //               },
+  //               {
+  //                 x: cell.x,
+  //                 y: cell.y,
+  //                 width: gridCellSize,
+  //                 height: gridCellSize,
+  //               }
+  //             )
+  //           ) {
+  //             setPlayerYPos(updateY);
+  //           }
+  //         });
+  //         checkCollisions(
+  //           playerXPos,
+  //           updateY,
+  //           gridCellSize * 2,
+  //           cols,
+  //           gridCellSize,
+  //           () => {
+  //             setPlayerYPos(updateY);
+  //           }
+  //         );
+  //       }
+  //     }
+  //     setLastDirection(heldDirection);
+  //   }
+  // };
 
   return (
-    <>
+    <GameLoop>
       <p className="debug-bar">
         pX:{playerXPos}, pY: {playerYPos}, directions: {heldDirections}
       </p>
@@ -167,7 +171,7 @@ function App() {
           {getColTests()}
         </div>
       </section>
-    </>
+    </GameLoop>
   );
 }
 

@@ -1,8 +1,8 @@
 import React, { useRef, useEffect } from "react";
 
 const useAnimationFrame = (callback) => {
-  const requestRef = React.useRef();
-  const previousTimeRef = React.useRef();
+  const requestRef = useRef();
+  const previousTimeRef = useRef();
 
   const animate = (time) => {
     if (previousTimeRef.current != undefined) {
@@ -13,7 +13,7 @@ const useAnimationFrame = (callback) => {
     requestRef.current = requestAnimationFrame(animate);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     requestRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(requestRef.current);
   }, []); // Make sure the effect runs only once

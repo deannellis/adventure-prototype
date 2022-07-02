@@ -31,11 +31,7 @@ const useKeyListener = () => {
       const dir = keys[e.which];
       const index = heldKeys.indexOf(dir);
       if (index > -1) {
-        setHeldKeys(
-          heldKeys.filter((val) => {
-            val !== dir;
-          })
-        );
+        setHeldKeys(heldKeys.filter((val) => val != dir));
       }
     },
     window
