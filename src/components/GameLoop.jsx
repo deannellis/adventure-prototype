@@ -1,5 +1,5 @@
 import React, { useState, useLayoutEffect, useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import useKeyListener from "../hooks/useKeyListener";
 import {
@@ -10,9 +10,12 @@ import {
   decrementY,
 } from "../store/slices/playerPositionSlice";
 import { collisions } from "../assets/mapData/dungeonTest01";
+import { checkCollisions } from "../utils/checkCollisions";
 
 const GameLoop = ({ children }) => {
   const dispatch = useDispatch();
+  const playerX = useSelector((state) => state.playerPosition.x);
+  const playerY = useSelector((state) => state.playerPosition.y);
 
   const pixelSize = parseInt(
     getComputedStyle(document.documentElement).getPropertyValue("--pixel-size")
@@ -38,9 +41,27 @@ const GameLoop = ({ children }) => {
     });
   });
 
+  const didCollide = () => {
+    let collided = false;
+    cols.forEach((cell) => {
+      if (
+        playerX + gridCellSize * 2 >= cell.x &&
+        playerX <= cell.x + gridCellSize &&
+        playerY <= cell.y + gridCellSize &&
+        playerY + gridCellSize * 2 >= cell.y
+      ) {
+        console.log("collision!");
+        collided = true;
+      } else {
+        console.log("no collision!");
+      }
+    });
+    return collided;
+  };
+
   // PLAYER MOVEMENT
   const heldKeys = useKeyListener();
-  const updatePlayerPos = () => {
+  const updatePlayerPos = async () => {
     const heldDirection = heldKeys[0];
     if (heldDirection) {
       if (heldKeys.length === 2) {
@@ -86,15 +107,17 @@ const GameLoop = ({ children }) => {
   // Counter can be used for debugging to track ticks
   const [counter, setCounter] = useState(0);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isUpdateRequired) {
-      const tick = () => {
+      const tick = async () => {
         timerId.current = requestAnimationFrame(tick);
         setIsVisible(false);
         setIsVisible(true);
         // LOOP EXECUTABLES
         setCounter((x) => x + 1);
-        updatePlayerPos();
+        if (!(await didCollide())) {
+          updatePlayerPos();
+        }
       };
       timerId.current = requestAnimationFrame(tick);
       return () => cancelAnimationFrame(timerId.current);

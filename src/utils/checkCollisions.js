@@ -1,6 +1,6 @@
-export const checkCollisions = (pX, pY, pDim, cols, cellSize, callback) => {
+export const checkCollisions = (pX, pY, pDim, cols, cellSize) => {
+  let collided = false;
   cols.forEach((cell) => {
-    // console.log(cell);
     if (
       pX + pDim >= cell.x &&
       pX <= cell.x + cellSize &&
@@ -8,11 +8,12 @@ export const checkCollisions = (pX, pY, pDim, cols, cellSize, callback) => {
       pY + pDim >= cell.y
     ) {
       console.log("collision!");
+      collided = true;
     } else {
       console.log("no collision!");
-      callback();
     }
   });
+  return collided;
 };
 
 export const checkCollisions2 = (rect1, rect2) => {
