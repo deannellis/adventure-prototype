@@ -91,17 +91,6 @@ function App() {
             gridCellSize={gridCellSize}
           />
           <Player heldDirections={heldDirections} facing={lastDirection} />
-          <div
-            className="test-pp"
-            style={{
-              left: `${playerXPos}px`,
-              top: `${playerYPos}px`,
-              width: "10px",
-              height: "10px",
-              background: "red",
-              position: "absolute",
-            }}
-          ></div>
           <TestBox x={playerXStart} y={playerYStart} dim={gridCellSize * 2} />
           {getTestBlocks()}
         </div>

@@ -11,6 +11,7 @@ import {
 } from "../store/slices/playerPositionSlice";
 import { collisions } from "../assets/mapData/dungeonTest01";
 import { checkCollisions } from "../utils/checkCollisions";
+import { playerSpeed } from "../utils/settings";
 
 const GameLoop = ({ children }) => {
   const dispatch = useDispatch();
@@ -41,19 +42,23 @@ const GameLoop = ({ children }) => {
     });
   });
 
-  const didCollide = () => {
+  const willCollide = (xDir, yDir) => {
     let collided = false;
+    const xUpdate = xDir * playerSpeed;
+    const yUpdate = yDir * playerSpeed;
+    const newPX = playerX + xUpdate;
+    const newPY = playerY + yUpdate;
     cols.forEach((cell) => {
       if (
-        playerX + gridCellSize * 2 >= cell.x &&
-        playerX <= cell.x + gridCellSize &&
-        playerY <= cell.y + gridCellSize &&
-        playerY + gridCellSize * 2 >= cell.y
+        newPX + gridCellSize * 2 >= cell.x &&
+        newPX <= cell.x + gridCellSize &&
+        newPY <= cell.y + gridCellSize &&
+        newPY + gridCellSize * 2 >= cell.y
       ) {
         console.log("collision!");
         collided = true;
       } else {
-        console.log("no collision!");
+        // console.log("no collision!", playerX, playerY);
       }
     });
     return collided;
@@ -66,33 +71,49 @@ const GameLoop = ({ children }) => {
     if (heldDirection) {
       if (heldKeys.length === 2) {
         if (heldKeys.includes("right") && heldKeys.includes("up")) {
-          dispatch(incrementX({ diagonal: true }));
-          dispatch(decrementY({ diagonal: true }));
+          if (!willCollide(1, -1)) {
+            dispatch(incrementX({ diagonal: true }));
+            dispatch(decrementY({ diagonal: true }));
+          }
         }
         if (heldKeys.includes("right") && heldKeys.includes("down")) {
-          dispatch(incrementX({ diagonal: true }));
-          dispatch(incrementY({ diagonal: true }));
+          if (!willCollide(1, 1)) {
+            dispatch(incrementX({ diagonal: true }));
+            dispatch(incrementY({ diagonal: true }));
+          }
         }
         if (heldKeys.includes("left") && heldKeys.includes("down")) {
-          dispatch(decrementX({ diagonal: true }));
-          dispatch(incrementY({ diagonal: true }));
+          if (!willCollide(-1, 1)) {
+            dispatch(decrementX({ diagonal: true }));
+            dispatch(incrementY({ diagonal: true }));
+          }
         }
         if (heldKeys.includes("left") && heldKeys.includes("up")) {
-          dispatch(decrementX({ diagonal: true }));
-          dispatch(decrementY({ diagonal: true }));
+          if (!willCollide(-1, -1)) {
+            dispatch(decrementX({ diagonal: true }));
+            dispatch(decrementY({ diagonal: true }));
+          }
         }
       } else {
         if (heldDirection === "right") {
-          dispatch(incrementX({ diagonal: false }));
+          if (!willCollide(1, 0)) {
+            dispatch(incrementX({ diagonal: false }));
+          }
         }
         if (heldDirection === "left") {
-          dispatch(decrementX({ diagonal: false }));
+          if (!willCollide(-1, 0)) {
+            dispatch(decrementX({ diagonal: false }));
+          }
         }
         if (heldDirection === "down") {
-          dispatch(incrementY({ diagonal: false }));
+          if (!willCollide(0, 1)) {
+            dispatch(incrementY({ diagonal: false }));
+          }
         }
         if (heldDirection === "up") {
-          dispatch(decrementY({ diagonal: false }));
+          if (!willCollide(0, -1)) {
+            dispatch(decrementY({ diagonal: false }));
+          }
         }
       }
 
@@ -107,22 +128,22 @@ const GameLoop = ({ children }) => {
   // Counter can be used for debugging to track ticks
   const [counter, setCounter] = useState(0);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (isUpdateRequired) {
-      const tick = async () => {
+      const tick = () => {
         timerId.current = requestAnimationFrame(tick);
         setIsVisible(false);
         setIsVisible(true);
         // LOOP EXECUTABLES
         setCounter((x) => x + 1);
-        if (!(await didCollide())) {
+        if (!willCollide()) {
           updatePlayerPos();
         }
       };
       timerId.current = requestAnimationFrame(tick);
       return () => cancelAnimationFrame(timerId.current);
     }
-  }, [isUpdateRequired]);
+  }, [isUpdateRequired, playerX, playerY]);
 
   const [keysLen, setKeysLen] = useState(0);
   useLayoutEffect(() => {

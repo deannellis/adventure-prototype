@@ -1,11 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+import { playerSpeed } from "../../utils/settings";
+
 const initialState = {
   x: 300,
   y: 300,
   lastDirection: "down",
 };
-const playerSpeed = 2;
 const diagonalSpeed = playerSpeed * 0.75;
 
 export const playerPositionSlice = createSlice({
