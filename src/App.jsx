@@ -4,9 +4,8 @@ import Player from "./components/Player";
 import GameLoop from "./components/GameLoop";
 import Map from "./components/Map";
 import useKeyListener from "./hooks/useKeyListener";
-import { collisions } from "./assets/mapData/dungeonTest01";
+import { collisionsX } from "./assets/mapData/dungeonTest01";
 import TestBox from "./utils/TestBox";
-import { checkCollisions2 } from "./utils/checkCollisions";
 
 function App() {
   // CONSTANTS
@@ -35,12 +34,12 @@ function App() {
   // MAP
   const mapWidth = 32;
   const mapHeight = 32;
-  const collisionsMap = [];
-  for (let i = 0; i < collisions.length; i += mapWidth) {
-    collisionsMap.push(collisions.slice(i, mapWidth + i));
+  const collisionsXMap = [];
+  for (let i = 0; i < collisionsX.length; i += mapWidth) {
+    collisionsXMap.push(collisionsX.slice(i, mapWidth + i));
   }
   let cols = [];
-  collisionsMap.forEach((row, i) => {
+  collisionsXMap.forEach((row, i) => {
     row.forEach((cell, j) => {
       if (cell === 1) {
         cols.push({
@@ -52,7 +51,7 @@ function App() {
   });
   let testBlocks = [];
   const getTestBlocks = () => {
-    collisionsMap.forEach((row, i) => {
+    collisionsXMap.forEach((row, i) => {
       row.forEach((cell, j) => {
         if (cell === 1) {
           testBlocks.push(

@@ -10,7 +10,6 @@ import {
   decrementY,
 } from "../store/slices/playerPositionSlice";
 import { collisions } from "../assets/mapData/dungeonTest01";
-import { checkCollisions } from "../utils/checkCollisions";
 import { playerSpeed } from "../utils/settings";
 
 const GameLoop = ({ children }) => {
@@ -135,10 +134,8 @@ const GameLoop = ({ children }) => {
         setIsVisible(false);
         setIsVisible(true);
         // LOOP EXECUTABLES
-        setCounter((x) => x + 1);
-        if (!willCollide()) {
-          updatePlayerPos();
-        }
+        // setCounter((x) => x + 1);
+        updatePlayerPos();
       };
       timerId.current = requestAnimationFrame(tick);
       return () => cancelAnimationFrame(timerId.current);
